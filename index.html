@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f2eb">
+  <title>Kotoba Studio · Japanisch lernen</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="kanji-reference.js"></script>
+  <script defer src="kanji-reference-extra.js"></script>
+  <script defer src="data.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Lernsets">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">言</div>
+        <div>
+          <p class="eyebrow">Dein Japanischkurs</p>
+          <div class="brand-name">Kotoba <span>Studio</span></div>
+        </div>
+      </div>
+
+      <div class="library-heading">
+        <div>
+          <p class="eyebrow">Bibliothek</p>
+          <h2>Lernsets</h2>
+        </div>
+        <span class="count-pill" id="set-count">–</span>
+      </div>
+
+      <label class="search-field">
+        <span class="visually-hidden">Sets oder Vokabeln suchen</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.5"></circle><path d="m16 16 5 5"></path></svg>
+        <input id="search-input" type="search" placeholder="Sets oder Wörter suchen…" autocomplete="off">
+        <kbd>/</kbd>
+      </label>
+
+      <div class="folder-filters" id="folder-filters" aria-label="Ordner filtern"></div>
+      <div class="set-list" id="set-list" aria-live="polite"></div>
+
+      <div class="sidebar-footer">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="library-summary">Lade Vokabeln…</span>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button class="icon-button mobile-menu" id="menu-button" type="button" aria-label="Set-Liste öffnen" aria-expanded="false">☰</button>
+        <div class="breadcrumb"><span>Japanisch</span><span class="breadcrumb-sep">/</span><span id="breadcrumb-set">Lernset</span></div>
+        <div class="topbar-right"><span class="offline-badge">Lokal lernbar</span><span class="topbar-monogram">日本語</span></div>
+      </header>
+
+      <main class="content" id="content">
+        <section class="intro">
+          <div class="intro-copy">
+            <p class="section-kicker"><span class="kicker-line"></span> KOTOba / DEIN LERNRAUM</p>
+            <h1 id="set-title">Wörter verstehen.<br><em>Zusammenhänge sehen.</em></h1>
+            <p class="intro-description" id="set-description">Wähle ein Set aus der Bibliothek und lerne die Vokabeln mit ihren Kanji-Bestandteilen.</p>
+            <div class="set-details" id="set-details"></div>
+          </div>
+          <div class="intro-art" aria-hidden="true"><span class="art-circle"></span><span class="art-glyph">学</span><span class="art-label">まなぶ · lernen</span></div>
+        </section>
+
+        <section class="study-section" aria-label="Lernbereich">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Deine Übung</p>
+              <h2>Aktives Lernen</h2>
+            </div>
+            <a id="quizlet-link" class="source-link" href="#" target="_blank" rel="noopener noreferrer">Original auf Quizlet <span aria-hidden="true">↗</span></a>
+          </div>
+
+          <div class="study-toolbar">
+            <div class="mode-tabs" role="tablist" aria-label="Lernmodus">
+              <button id="cards-tab" class="mode-tab active" type="button" role="tab" aria-selected="true" aria-controls="cards-view">Lernkarten</button>
+              <button id="quizlet-tab" class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="quizlet-view">Quizlet</button>
+            </div>
+            <div class="toolbar-options" id="card-options">
+              <label class="toggle-label"><input id="open-only" type="checkbox"><span>Nur offene</span></label>
+              <button id="shuffle-button" class="text-button" type="button" aria-pressed="false">↝ Mischen</button>
+            </div>
+          </div>
+
+          <div class="study-grid" id="cards-view" role="tabpanel" aria-labelledby="cards-tab">
+            <div class="card-column">
+              <div class="card-topline"><span id="card-counter">Karte 1 / 1</span><span id="known-counter">0 gelernt</span></div>
+              <div class="progress-track" aria-label="Fortschritt"><span id="progress-fill"></span></div>
+
+              <button type="button" class="flashcard" id="flashcard" aria-label="Lernkarte umdrehen">
+                <span class="flashcard-corner" aria-hidden="true">言葉</span>
+                <span class="flashcard-label" id="card-side-label">BEGRIFF</span>
+                <span class="flashcard-term" id="card-main">–</span>
+                <span class="flashcard-prompt" id="card-prompt">Klicken oder Leertaste zum Aufdecken</span>
+                <span class="flashcard-seal" aria-hidden="true">学</span>
+              </button>
+
+              <div class="card-actions">
+                <button type="button" class="nav-button" id="previous-button" aria-label="Vorherige Karte">← <span>Zurück</span></button>
+                <button type="button" class="known-button" id="known-button">✓ Als gelernt markieren</button>
+                <button type="button" class="nav-button" id="next-button"><span>Weiter</span> →</button>
+              </div>
+              <p class="keyboard-hint">Tastatur: <kbd>Leertaste</kbd> aufdecken · <kbd>←</kbd> <kbd>→</kbd> wechseln · <kbd>M</kbd> markieren</p>
+            </div>
+
+            <aside class="analysis-panel" aria-labelledby="analysis-title">
+              <div class="analysis-header"><span class="analysis-icon" aria-hidden="true">文</span><div><p class="eyebrow">Hinter dem Wort</p><h3 id="analysis-title">Kanji-Analyse</h3></div></div>
+              <p class="analysis-intro" id="analysis-intro">Die einzelnen Zeichen helfen dir, zusammengesetzte Wörter zu behalten.</p>
+              <div id="subword-list" class="subword-list hidden"></div>
+              <div id="kanji-list" class="kanji-list"></div>
+              <p class="analysis-note">Kanji-Bedeutungen sind Lernhilfen. Die Bedeutung eines ganzen Wortes kann davon abweichen.</p>
+            </aside>
+          </div>
+
+          <div class="quizlet-view hidden" id="quizlet-view" role="tabpanel" aria-labelledby="quizlet-tab">
+            <div class="embed-heading"><div><h3>Originales Quizlet-Set</h3><p>Direkt im eingebetteten Lernmodus üben.</p></div><a id="quizlet-open" href="#" target="_blank" rel="noopener noreferrer">In Quizlet öffnen ↗</a></div>
+            <iframe id="quizlet-frame" title="Quizlet-Lernset" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen"></iframe>
+            <p class="embed-note">Die Kanji-Erklärungen stehen im Lernkartenmodus. Quizlet und diese Seite synchronisieren ihre Karten nicht.</p>
+          </div>
+        </section>
+
+        <footer class="page-footer"><span>Kotoba Studio · dein Lernraum</span><button id="sources-button" type="button">Quellen & Datenhinweise</button></footer>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="sources-dialog" class="sources-dialog"><form method="dialog"><div class="dialog-top"><h2>Quellen & Datenhinweise</h2><button type="submit" aria-label="Schließen">×</button></div><p>Die Vokabeln stammen aus der bereitgestellten Quizlet-CSV. Wo vorhanden, zeigt die Kanji-Analyse die Einzelkanji-Notizen des Kurses.</p><p>Ergänzende englische Kanji-Bedeutungen und Lesungen stammen aus <a href="https://github.com/davidluzgouveia/kanji-data" target="_blank" rel="noopener noreferrer">kanji-data</a>, basierend auf <a href="https://www.edrdg.org/wiki/KANJIDIC_Project.html" target="_blank" rel="noopener noreferrer">KANJIDIC</a> der EDRDG (CC BY-SA 4.0). Die Vokabeln werden lokal aus den mitgelieferten Dateien geladen. Quizlet-Einbettungen benötigen Internet.</p><p>Bei den Karten 午前 und 午後 wurden vertauschte Angaben der Ausgangsliste korrigiert.</p><button class="dialog-close" type="submit">Schließen</button></form></dialog>
+  <div id="mobile-scrim" class="mobile-scrim hidden"></div>
+</body>
+</html>
