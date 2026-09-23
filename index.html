@@ -9,6 +9,7 @@
   <script defer src="kanji-reference.js"></script>
   <script defer src="kanji-reference-extra.js"></script>
   <script defer src="data.js"></script>
+  <script defer src="course-materials.js"></script>
   <script defer src="app.js"></script>
 </head>
 <body>
@@ -61,19 +62,19 @@
             <p class="intro-description" id="set-description">Wähle ein Set aus der Bibliothek und lerne die Vokabeln mit ihren Kanji-Bestandteilen.</p>
             <div class="set-details" id="set-details"></div>
           </div>
-          <div class="intro-art" aria-hidden="true"><span class="art-circle"></span><span class="art-glyph">学</span><span class="art-label">まなぶ · lernen</span></div>
+          <div class="intro-art" aria-hidden="true"><span class="art-circle"></span><span class="art-glyph" id="art-glyph">学</span><span class="art-label" id="art-label">まなぶ · lernen</span></div>
         </section>
 
         <section class="study-section" aria-label="Lernbereich">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Deine Übung</p>
-              <h2>Aktives Lernen</h2>
+              <h2 id="study-heading">Aktives Lernen</h2>
             </div>
             <a id="quizlet-link" class="source-link" href="#" target="_blank" rel="noopener noreferrer">Original auf Quizlet <span aria-hidden="true">↗</span></a>
           </div>
 
-          <div class="study-toolbar">
+          <div class="study-toolbar" id="study-toolbar">
             <div class="mode-tabs" role="tablist" aria-label="Lernmodus">
               <button id="cards-tab" class="mode-tab active" type="button" role="tab" aria-selected="true" aria-controls="cards-view">Lernkarten</button>
               <button id="quizlet-tab" class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="quizlet-view">Quizlet</button>
@@ -119,6 +120,8 @@
             <iframe id="quizlet-frame" title="Quizlet-Lernset" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen"></iframe>
             <p class="embed-note">Die Kanji-Erklärungen stehen im Lernkartenmodus. Quizlet und diese Seite synchronisieren ihre Karten nicht.</p>
           </div>
+
+          <div class="material-view hidden" id="material-view" aria-live="polite"></div>
         </section>
 
         <footer class="page-footer"><span>Kotoba Studio · dein Lernraum</span><button id="sources-button" type="button">Quellen & Datenhinweise</button></footer>
@@ -126,7 +129,7 @@
     </div>
   </div>
 
-  <dialog id="sources-dialog" class="sources-dialog"><form method="dialog"><div class="dialog-top"><h2>Quellen & Datenhinweise</h2><button type="submit" aria-label="Schließen">×</button></div><p>Die Vokabeln stammen aus der bereitgestellten Quizlet-CSV. Wo vorhanden, zeigt die Kanji-Analyse die Einzelkanji-Notizen des Kurses.</p><p>Ergänzende englische Kanji-Bedeutungen und Lesungen stammen aus <a href="https://github.com/davidluzgouveia/kanji-data" target="_blank" rel="noopener noreferrer">kanji-data</a>, basierend auf <a href="https://www.edrdg.org/wiki/KANJIDIC_Project.html" target="_blank" rel="noopener noreferrer">KANJIDIC</a> der EDRDG (CC BY-SA 4.0). Die Vokabeln werden lokal aus den mitgelieferten Dateien geladen. Quizlet-Einbettungen benötigen Internet.</p><p>Bei den Karten 午前 und 午後 wurden vertauschte Angaben der Ausgangsliste korrigiert.</p><button class="dialog-close" type="submit">Schließen</button></form></dialog>
+  <dialog id="sources-dialog" class="sources-dialog"><form method="dialog"><div class="dialog-top"><h2>Quellen & Datenhinweise</h2><button type="submit" aria-label="Schließen">×</button></div><p>Die Vokabeln stammen aus der bereitgestellten Quizlet-CSV. Wo vorhanden, zeigt die Kanji-Analyse die Einzelkanji-Notizen des Kurses.</p><p>Die interaktiven Kursmodule wurden aus den vier bereitgestellten Unterlagen <em>ABCDEFG</em>, <em>Fragewoerter</em>, <em>Japanese_numbers</em> und <em>KLG_pack_DE</em> aufgebaut. Über „Original-PDF öffnen“ bleibt die jeweilige Quelle direkt erreichbar.</p><p>Ergänzende englische Kanji-Bedeutungen und Lesungen stammen aus <a href="https://github.com/davidluzgouveia/kanji-data" target="_blank" rel="noopener noreferrer">kanji-data</a>, basierend auf <a href="https://www.edrdg.org/wiki/KANJIDIC_Project.html" target="_blank" rel="noopener noreferrer">KANJIDIC</a> der EDRDG (CC BY-SA 4.0). Die Vokabeln und Kursmodule werden lokal aus den mitgelieferten Dateien geladen. Quizlet-Einbettungen benötigen Internet.</p><p>Bei den Karten 午前 und 午後 wurden vertauschte Angaben der Ausgangsliste korrigiert.</p><button class="dialog-close" type="submit">Schließen</button></form></dialog>
   <div id="mobile-scrim" class="mobile-scrim hidden"></div>
 </body>
 </html>

@@ -9,6 +9,8 @@ Eine lokale Lernseite für die Quizlet-Vokabellisten aus dem Japanischkurs.
 ## Inhalt
 
 - 114 Sets und 3.598 Karten aus `../quizlet_vokabellisten.csv` (Stand: 22. September 2026)
+- 4 interaktive Kursmodule aus `ABCDEFG.pdf`, `Fragewoerter.pdf`, `Japanese_numbers.pdf` und `KLG_pack_DE.pdf`
+- Alphabet-Aufdeckkarten, Fragewort-Satztraining, Zahlenumwandler und ein Kompaktkurs zu Satzbau, Partikeln, Uhrzeit, Datum und Adjektiven
 - Suche nach Sets und Vokabeln, Ordnerfilter, Mischen, Lernfortschritt und „Nur offene“
 - Kanji-Zerlegung neben jeder Karte, einschließlich Einzelkanji aus den Kurssets und Teilwörtern, wenn sie als eigene Vokabel im Material stehen
 - Ergänzende Kanji-Bedeutungen und Lesungen aus KANJIDIC, bei fehlenden deutschen Kursangaben auf Englisch gekennzeichnet
