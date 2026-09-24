@@ -62,7 +62,7 @@
     folder: 'Alle', query: '', cursor: 0, flipped: false,
     mode: 'cards', openOnly: false, shuffled: false, order: []
   };
-  const materialSession = { activeId: '', panel: '', index: 0 };
+  const materialSession = { activeId: '', panel: '', index: 0, script: 'hiragana', group: 'basic', lesson: 1 };
 
   function getStored(key) {
     try { return window.localStorage.getItem(key); } catch (_) { return null; }
@@ -393,6 +393,9 @@
     materialSession.activeId = state.material.id;
     materialSession.panel = new URLSearchParams(window.location.search).get('panel') || defaultPanel;
     materialSession.index = 0;
+    materialSession.script = 'hiragana';
+    materialSession.group = 'basic';
+    materialSession.lesson = 1;
   }
 
   function renderMaterialTabs(tabs) {
@@ -443,6 +446,174 @@
     }
     card.append(options, feedback);
     return card;
+  }
+
+  function renderSegmentedControl(label, options, current, onChange) {
+    const wrapper = makeElement('div', 'material-control');
+    wrapper.append(makeElement('span', 'material-control-label', label));
+    const buttons = makeElement('div', 'segmented-buttons');
+    for (const [value, text] of options) {
+      const active = value === current;
+      const button = makeButton(`segment-button${active ? ' active' : ''}`, text, () => onChange(value));
+      button.setAttribute('aria-pressed', String(active));
+      buttons.append(button);
+    }
+    wrapper.append(buttons);
+    return wrapper;
+  }
+
+  function kanaPool() {
+    const all = Array.isArray(course.kana) ? course.kana : [];
+    return materialSession.group === 'all' ? all : all.filter((item) => item.group === materialSession.group);
+  }
+
+  function renderKanaControls({ allowBoth = false } = {}) {
+    const controls = makeElement('div', 'material-controls');
+    const scripts = allowBoth
+      ? [['hiragana', 'Hiragana'], ['katakana', 'Katakana'], ['both', 'Beide']]
+      : [['hiragana', 'Hiragana'], ['katakana', 'Katakana']];
+    controls.append(
+      renderSegmentedControl('Schrift', scripts, materialSession.script, (value) => {
+        materialSession.script = value;
+        materialSession.index = 0;
+        renderMaterial();
+      }),
+      renderSegmentedControl('Stufe', [['basic', 'Grundzeichen'], ['voiced', 'Dakuten'], ['contracted', 'Kombinationen'], ['all', 'Alle']], materialSession.group, (value) => {
+        materialSession.group = value;
+        materialSession.index = 0;
+        renderMaterial();
+      })
+    );
+    return controls;
+  }
+
+  function renderKanaTable() {
+    const intro = makeElement('div', 'lesson-callout');
+    intro.append(makeElement('p', 'eyebrow', 'Sehen · erinnern · prüfen'));
+    intro.append(makeElement('h3', '', 'Baue das japanische Alphabet in kleinen, sicheren Stufen auf.'));
+    intro.append(makeElement('p', '', 'Tippe ein Zeichen an, um die Umschrift aufzudecken. Beginne mit den 46 Grundzeichen, bevor du Dakuten und Kombinationslaute dazunimmst.'));
+    ui.materialView.append(intro, renderKanaControls({ allowBoth: true }));
+    const grid = makeElement('div', 'kana-grid');
+    for (const item of kanaPool()) {
+      const button = makeButton('kana-card', '', () => {
+        const open = button.classList.toggle('revealed');
+        button.setAttribute('aria-expanded', String(open));
+      });
+      button.setAttribute('aria-expanded', 'false');
+      const glyphs = materialSession.script === 'both' ? `${item.hiragana} · ${item.katakana}` : item[materialSession.script];
+      const glyph = makeElement('span', 'kana-glyph', glyphs);
+      glyph.lang = 'ja';
+      button.append(glyph, makeElement('span', 'kana-romaji', item.romaji));
+      grid.append(button);
+    }
+    ui.materialView.append(grid);
+  }
+
+  function renderKanaChoice(reverse = false) {
+    ui.materialView.append(renderKanaControls());
+    const pool = kanaPool();
+    const item = pool[materialSession.index % pool.length];
+    const key = reverse ? item[materialSession.script] : item.romaji;
+    const distractors = shuffled(pool.filter((candidate) => candidate !== item))
+      .map((candidate) => reverse ? candidate[materialSession.script] : candidate.romaji)
+      .filter((value, index, values) => values.indexOf(value) === index && value !== key)
+      .slice(0, 3);
+    const glyph = item[materialSession.script];
+    ui.materialView.append(renderChoiceExercise({
+      key: `${reverse ? 'write' : 'recognize'}-${materialSession.script}-${item.romaji}`,
+      eyebrow: `${materialSession.index + 1} von ${pool.length} · ${materialSession.group === 'basic' ? 'Grundzeichen' : materialSession.group === 'voiced' ? 'Dakuten' : materialSession.group === 'contracted' ? 'Kombinationen' : 'gemischt'}`,
+      prompt: reverse ? `Welches Zeichen steht für „${item.romaji}“?` : `Wie liest man ${glyph}?`,
+      context: reverse ? (materialSession.script === 'hiragana' ? 'Wähle das passende Hiragana.' : 'Wähle das passende Katakana.') : (materialSession.script === 'hiragana' ? 'Hiragana erkennen' : 'Katakana erkennen'),
+      choices: shuffled([key, ...distractors]),
+      answer: key,
+      explanation: `${item.hiragana} / ${item.katakana} wird ${item.romaji} gelesen.`,
+      next: () => { materialSession.index = (materialSession.index + 1) % pool.length; renderMaterial(); }
+    }));
+  }
+
+  function normalizeRomaji(value) {
+    return value.trim().toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/ou/g, 'o').replace(/oo/g, 'o').replace(/\s+/g, ' ').replace(/[.!?]/g, '');
+  }
+
+  function renderKanaReading() {
+    const readings = course.kanaReadings || [];
+    const item = readings[materialSession.index % readings.length];
+    const card = makeElement('section', 'choice-exercise typed-exercise');
+    card.append(makeElement('p', 'eyebrow', `Leseübung ${materialSession.index + 1} von ${readings.length}`));
+    const prompt = makeElement('h3', 'exercise-prompt kana-reading-prompt', item.kana);
+    prompt.lang = 'ja';
+    card.append(prompt, makeElement('p', 'exercise-context', 'Schreibe die Lesung in Rōmaji. Lange Vokale kannst du als ō oder ou eingeben.'));
+    const form = makeElement('form', 'typed-answer');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.placeholder = 'z. B. watashi wa…';
+    input.setAttribute('aria-label', 'Lesung in Rōmaji');
+    const submit = makeElement('button', '', 'Antwort prüfen');
+    submit.type = 'submit';
+    const feedback = makeElement('p', 'choice-feedback');
+    feedback.setAttribute('aria-live', 'polite');
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const correct = normalizeRomaji(input.value) === normalizeRomaji(item.romaji);
+      feedback.textContent = correct ? `Richtig: ${item.romaji}` : `Noch nicht. Die Lösung lautet: ${item.romaji}`;
+      feedback.className = `choice-feedback ${correct ? 'success' : 'error'}`;
+      input.classList.toggle('correct', correct);
+      input.classList.toggle('incorrect', !correct);
+      if (correct) {
+        markMastered(`${state.material.id}:reading-${materialSession.index % readings.length}`);
+        renderSetList();
+      }
+      if (!card.querySelector('.next-exercise')) card.append(makeButton('next-exercise', 'Nächste Leseübung →', () => {
+        materialSession.index = (materialSession.index + 1) % readings.length;
+        renderMaterial();
+      }));
+    });
+    form.append(input, submit);
+    card.append(form, feedback);
+    ui.materialView.append(card);
+    setTimeout(() => input.focus(), 0);
+  }
+
+  function renderKanaRules() {
+    const intro = makeElement('div', 'lesson-callout');
+    intro.append(makeElement('p', 'eyebrow', 'Fünf Schlüsselregeln'));
+    intro.append(makeElement('h3', '', 'Die Zeichen zu kennen ist der Anfang – diese Regeln machen daraus flüssiges Lesen.'));
+    intro.append(makeElement('p', '', 'Die Hinweise und die 21 Leseaufgaben stammen direkt aus der neuen Kana-Einführung.'));
+    const rules = makeElement('div', 'kana-rule-grid');
+    for (const rule of course.kanaRules || []) {
+      const card = makeElement('article', 'kana-rule-card');
+      const sign = makeElement('strong', 'kana-rule-sign', rule.sign);
+      sign.lang = 'ja';
+      card.append(sign, makeElement('h4', '', rule.title), makeElement('p', '', rule.text));
+      rules.append(card);
+    }
+    ui.materialView.append(intro, rules);
+    if (Array.isArray(state.material.sources)) {
+      const sources = makeElement('div', 'material-source-grid');
+      for (const [label, href] of state.material.sources) {
+        const link = makeElement('a', 'material-source-card');
+        link.href = href;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.append(makeElement('strong', '', label), makeElement('span', '', 'Original-PDF öffnen ↗'));
+        sources.append(link);
+      }
+      ui.materialView.append(makeElement('h3', 'material-subheading', 'Arbeitsblätter & Quellen'), sources);
+    }
+  }
+
+  function renderKanaMaterial() {
+    ensureMaterialSession('table');
+    if (materialSession.panel !== 'table' && materialSession.script === 'both') materialSession.script = 'hiragana';
+    ui.materialView.append(renderMaterialTabs([['table', 'Kana-Tabelle'], ['recognize', 'Erkennen'], ['write', 'Aktiv abrufen'], ['reading', 'Lesen'], ['rules', 'Regeln & PDFs']]));
+    if (materialSession.panel === 'table') renderKanaTable();
+    else if (materialSession.panel === 'recognize') renderKanaChoice(false);
+    else if (materialSession.panel === 'write') renderKanaChoice(true);
+    else if (materialSession.panel === 'reading') renderKanaReading();
+    else renderKanaRules();
   }
 
   function renderAlphabetMaterial() {
@@ -851,12 +1022,92 @@
     else renderCourseQuiz();
   }
 
+  function renderMinnaOverview() {
+    const intro = makeElement('div', 'lesson-callout');
+    intro.append(makeElement('p', 'eyebrow', 'Vier Lektionen · ein Lernpfad'));
+    intro.append(makeElement('h3', '', 'Vom Vorstellen bis zum Tagesablauf – erst Muster verstehen, dann aktiv anwenden.'));
+    intro.append(makeElement('p', '', 'Die Kapitel folgen dem romanisierten Lehrbuch. Die Original-Lösungen beginnen im PDF ab Seite 18.'));
+    const grid = makeElement('div', 'minna-lesson-grid');
+    for (const lesson of course.minnaLessons || []) {
+      const button = makeButton('minna-lesson-card', '', () => {
+        materialSession.panel = `lesson-${lesson.lesson}`;
+        materialSession.lesson = lesson.lesson;
+        materialSession.index = 0;
+        renderMaterial();
+      });
+      button.append(
+        makeElement('span', 'minna-lesson-number', `LEKTION ${lesson.lesson}`),
+        makeElement('strong', '', lesson.title),
+        makeElement('span', '', lesson.summary),
+        makeElement('small', '', `PDF-Seiten ${lesson.pages} · ${lesson.drills.length} Aufgaben`)
+      );
+      grid.append(button);
+    }
+    ui.materialView.append(intro, grid);
+  }
+
+  function renderMinnaLesson(lessonNumber) {
+    const lesson = (course.minnaLessons || []).find((item) => item.lesson === lessonNumber);
+    if (!lesson) return;
+    materialSession.lesson = lesson.lesson;
+    const intro = makeElement('div', 'lesson-callout');
+    intro.append(makeElement('p', 'eyebrow', `Lektion ${lesson.lesson} · PDF-Seiten ${lesson.pages}`));
+    intro.append(makeElement('h3', '', lesson.title));
+    intro.append(makeElement('p', '', lesson.summary));
+    const patterns = makeElement('div', 'pattern-grid');
+    for (const [pattern, meaning] of lesson.patterns) {
+      const card = makeElement('article', 'pattern-card');
+      card.append(makeElement('strong', '', pattern), makeElement('span', '', meaning));
+      patterns.append(card);
+    }
+    const start = makeButton('lesson-start-button', `Lektion ${lesson.lesson} jetzt prüfen →`, () => {
+      materialSession.panel = 'quiz';
+      materialSession.index = 0;
+      renderMaterial();
+    });
+    ui.materialView.append(intro, patterns, start);
+  }
+
+  function renderMinnaQuiz() {
+    const lessons = course.minnaLessons || [];
+    const lesson = lessons.find((item) => item.lesson === materialSession.lesson) || lessons[0];
+    const selector = renderSegmentedControl('Kapitel-Check', lessons.map((item) => [item.lesson, `L${item.lesson}`]), lesson.lesson, (value) => {
+      materialSession.lesson = value;
+      materialSession.index = 0;
+      renderMaterial();
+    });
+    selector.classList.add('quiz-lesson-selector');
+    ui.materialView.append(selector);
+    const drill = lesson.drills[materialSession.index % lesson.drills.length];
+    ui.materialView.append(renderChoiceExercise({
+      key: `lesson-${lesson.lesson}-${materialSession.index % lesson.drills.length}`,
+      eyebrow: `Lektion ${lesson.lesson} · Aufgabe ${materialSession.index + 1} von ${lesson.drills.length}`,
+      prompt: drill.prompt,
+      context: lesson.title,
+      choices: shuffled(drill.options),
+      answer: drill.answer,
+      explanation: drill.explanation,
+      next: () => { materialSession.index = (materialSession.index + 1) % lesson.drills.length; renderMaterial(); }
+    }));
+  }
+
+  function renderMinnaMaterial() {
+    ensureMaterialSession('overview');
+    const tabs = [['overview', 'Überblick'], ...(course.minnaLessons || []).map((lesson) => [`lesson-${lesson.lesson}`, `Lektion ${lesson.lesson}`]), ['quiz', 'Kapitel-Check']];
+    ui.materialView.append(renderMaterialTabs(tabs));
+    if (materialSession.panel === 'overview') renderMinnaOverview();
+    else if (materialSession.panel === 'quiz') renderMinnaQuiz();
+    else renderMinnaLesson(Number(materialSession.panel.replace('lesson-', '')));
+  }
+
   function renderMaterial() {
     if (!state.material) return;
     ui.materialView.replaceChildren();
     if (state.material.kind === 'alphabet') renderAlphabetMaterial();
     else if (state.material.kind === 'questions') renderQuestionMaterial();
     else if (state.material.kind === 'numbers') renderNumberMaterial();
+    else if (state.material.kind === 'kana') renderKanaMaterial();
+    else if (state.material.kind === 'textbook') renderMinnaMaterial();
     else renderCourseMaterial();
   }
 

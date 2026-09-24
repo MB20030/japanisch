@@ -87,6 +87,106 @@
     { prompt: 'そうです___。', de: 'So ist es, nicht wahr?', answer: 'ね', options: ['ね', 'よ', 'を', 'へ'], explanation: 'ね sucht Zustimmung und bindet das Gegenüber ein.' }
   ];
 
+  const makeKana = (group, rows) => rows.map(([romaji, hiragana, katakana]) => ({ romaji, hiragana, katakana, group }));
+  const kana = [
+    ...makeKana('basic', [
+      ['a', 'あ', 'ア'], ['i', 'い', 'イ'], ['u', 'う', 'ウ'], ['e', 'え', 'エ'], ['o', 'お', 'オ'],
+      ['ka', 'か', 'カ'], ['ki', 'き', 'キ'], ['ku', 'く', 'ク'], ['ke', 'け', 'ケ'], ['ko', 'こ', 'コ'],
+      ['sa', 'さ', 'サ'], ['shi', 'し', 'シ'], ['su', 'す', 'ス'], ['se', 'せ', 'セ'], ['so', 'そ', 'ソ'],
+      ['ta', 'た', 'タ'], ['chi', 'ち', 'チ'], ['tsu', 'つ', 'ツ'], ['te', 'て', 'テ'], ['to', 'と', 'ト'],
+      ['na', 'な', 'ナ'], ['ni', 'に', 'ニ'], ['nu', 'ぬ', 'ヌ'], ['ne', 'ね', 'ネ'], ['no', 'の', 'ノ'],
+      ['ha', 'は', 'ハ'], ['hi', 'ひ', 'ヒ'], ['fu', 'ふ', 'フ'], ['he', 'へ', 'ヘ'], ['ho', 'ほ', 'ホ'],
+      ['ma', 'ま', 'マ'], ['mi', 'み', 'ミ'], ['mu', 'む', 'ム'], ['me', 'め', 'メ'], ['mo', 'も', 'モ'],
+      ['ya', 'や', 'ヤ'], ['yu', 'ゆ', 'ユ'], ['yo', 'よ', 'ヨ'],
+      ['ra', 'ら', 'ラ'], ['ri', 'り', 'リ'], ['ru', 'る', 'ル'], ['re', 'れ', 'レ'], ['ro', 'ろ', 'ロ'],
+      ['wa', 'わ', 'ワ'], ['wo', 'を', 'ヲ'], ['n', 'ん', 'ン']
+    ]),
+    ...makeKana('voiced', [
+      ['ga', 'が', 'ガ'], ['gi', 'ぎ', 'ギ'], ['gu', 'ぐ', 'グ'], ['ge', 'げ', 'ゲ'], ['go', 'ご', 'ゴ'],
+      ['za', 'ざ', 'ザ'], ['ji', 'じ', 'ジ'], ['zu', 'ず', 'ズ'], ['ze', 'ぜ', 'ゼ'], ['zo', 'ぞ', 'ゾ'],
+      ['da', 'だ', 'ダ'], ['ji (di)', 'ぢ', 'ヂ'], ['zu (du)', 'づ', 'ヅ'], ['de', 'で', 'デ'], ['do', 'ど', 'ド'],
+      ['ba', 'ば', 'バ'], ['bi', 'び', 'ビ'], ['bu', 'ぶ', 'ブ'], ['be', 'べ', 'ベ'], ['bo', 'ぼ', 'ボ'],
+      ['pa', 'ぱ', 'パ'], ['pi', 'ぴ', 'ピ'], ['pu', 'ぷ', 'プ'], ['pe', 'ぺ', 'ペ'], ['po', 'ぽ', 'ポ']
+    ]),
+    ...makeKana('contracted', [
+      ['kya', 'きゃ', 'キャ'], ['kyu', 'きゅ', 'キュ'], ['kyo', 'きょ', 'キョ'],
+      ['sha', 'しゃ', 'シャ'], ['shu', 'しゅ', 'シュ'], ['sho', 'しょ', 'ショ'],
+      ['cha', 'ちゃ', 'チャ'], ['chu', 'ちゅ', 'チュ'], ['cho', 'ちょ', 'チョ'],
+      ['nya', 'にゃ', 'ニャ'], ['nyu', 'にゅ', 'ニュ'], ['nyo', 'にょ', 'ニョ'],
+      ['hya', 'ひゃ', 'ヒャ'], ['hyu', 'ひゅ', 'ヒュ'], ['hyo', 'ひょ', 'ヒョ'],
+      ['mya', 'みゃ', 'ミャ'], ['myu', 'みゅ', 'ミュ'], ['myo', 'みょ', 'ミョ'],
+      ['rya', 'りゃ', 'リャ'], ['ryu', 'りゅ', 'リュ'], ['ryo', 'りょ', 'リョ'],
+      ['gya', 'ぎゃ', 'ギャ'], ['gyu', 'ぎゅ', 'ギュ'], ['gyo', 'ぎょ', 'ギョ'],
+      ['ja', 'じゃ', 'ジャ'], ['ju', 'じゅ', 'ジュ'], ['jo', 'じょ', 'ジョ'],
+      ['bya', 'びゃ', 'ビャ'], ['byu', 'びゅ', 'ビュ'], ['byo', 'びょ', 'ビョ'],
+      ['pya', 'ぴゃ', 'ピャ'], ['pyu', 'ぴゅ', 'ピュ'], ['pyo', 'ぴょ', 'ピョ']
+    ])
+  ];
+
+  const kanaReadings = [
+    ['かな', 'kana'], ['かんたん', 'kantan'], ['ならへ いきます。', 'nara e ikimasu'],
+    ['わたしは のみます。', 'watashi wa nomimasu'], ['ほんを よみます。', 'hon o yomimasu'],
+    ['こうこう', 'kōkō'], ['きって', 'kitte'], ['たべます', 'tabemasu'], ['みず', 'mizu'], ['です', 'desu'],
+    ['ごご', 'gogo'], ['さんぽ', 'sanpo'], ['とうきょう', 'tōkyō'], ['しゃしん', 'shashin'],
+    ['おちゃ', 'ocha'], ['ひゃく', 'hyaku'], ['さんびゃく', 'sanbyaku'], ['りょこう', 'ryokō'],
+    ['ざっし', 'zasshi'], ['がっこう', 'gakkō'], ['はな と へび', 'hana to hebi']
+  ].map(([kanaText, romaji]) => ({ kana: kanaText, romaji }));
+
+  const kanaRules = [
+    { sign: 'は・を・へ', title: 'Partikeln klingen anders', text: 'は wird als Partikel wa, を als o und へ als e gelesen.' },
+    { sign: 'う', title: 'Langer Vokal', text: 'Ein う nach einem Vokal verlängert ihn oft: きょうと = Kyōto.' },
+    { sign: 'っ', title: 'Kleines tsu', text: 'Das kleine っ verdoppelt den folgenden Konsonanten: きって = kitte.' },
+    { sign: '゛ ゜', title: 'Dakuten und Handakuten', text: 'Die Zeichen ゛ und ゜ machen aus k→g, s→z, t→d und h→b/p.' },
+    { sign: 'ゃ・ゅ・ょ', title: 'Kombinationslaute', text: 'Kleine ya/yu/yo verbinden sich mit der i-Reihe: きゃ = kya, nicht kiya.' }
+  ];
+
+  const minnaLessons = [
+    {
+      lesson: 1, title: 'Vorstellen & zuordnen', pages: '1–4',
+      summary: 'Einfache Nominalsätze mit は und です bilden, verneinen und als Frage formulieren.',
+      patterns: [['N1 wa N2 desu', 'N1 ist N2.'], ['N1 wa N2 ja arimasen', 'N1 ist nicht N2.'], ['N1 wa N2 desu ka', 'Ist N1 N2?'], ['N1 mo N2 desu', 'N1 ist auch N2.'], ['N1 no N2', 'N2 von/aus N1']],
+      drills: [
+        { prompt: 'Watashi ___ gakusei desu.', answer: 'wa', options: ['wa', 'o', 'de', 'e'], explanation: 'Das Satzthema wird mit wa markiert.' },
+        { prompt: 'Miraa-san wa kaishain ___ arimasen.', answer: 'ja', options: ['ja', 'mo', 'no', 'ka'], explanation: 'ja arimasen verneint den Nominalsatz höflich.' },
+        { prompt: 'Ano kata wa dare desu ___.', answer: 'ka', options: ['ka', 'wa', 'no', 'mo'], explanation: 'ka macht aus der Aussage eine Frage.' },
+        { prompt: 'Watashi ___ daigakusei desu.', answer: 'mo', options: ['mo', 'no', 'o', 'ni'], explanation: 'mo bedeutet hier „auch“.' }
+      ]
+    },
+    {
+      lesson: 2, title: 'Dinge zeigen & Besitz', pages: '5–8',
+      summary: 'Mit kore/sore/are und kono/sono/ano Dinge lokalisieren, benennen und Besitz ausdrücken.',
+      patterns: [['kore / sore / are', 'dieses / das / jenes Ding'], ['kono / sono / ano + N', 'dieses / das / jenes Nomen'], ['sō desu', 'Das stimmt.'], ['N1 no N2', 'N2 von N1'], ['dare no', 'wessen']],
+      drills: [
+        { prompt: '___ wa jisho desu. (dieses Ding)', answer: 'Kore', options: ['Kore', 'Kono', 'Koko', 'Dochira'], explanation: 'kore steht allein und bezeichnet ein Ding nahe beim Sprecher.' },
+        { prompt: '___ hon wa watashi no desu. (dieses Buch)', answer: 'Kono', options: ['Kono', 'Kore', 'Sono', 'Sore'], explanation: 'kono steht immer direkt vor einem Nomen.' },
+        { prompt: 'Sono kasa wa ___ no desu ka.', answer: 'dare', options: ['dare', 'doko', 'nanji', 'ikura'], explanation: 'dare no fragt nach dem Besitzer: wessen?' },
+        { prompt: 'Are wa kuruma ___ zasshi desu.', answer: 'no', options: ['no', 'mo', 'ka', 'wa'], explanation: 'no verbindet Auto und Zeitschrift: eine Autozeitschrift.' }
+      ]
+    },
+    {
+      lesson: 3, title: 'Orte & Preise', pages: '9–12',
+      summary: 'Orte mit koko/soko/asoko angeben, höflich nach dem Weg fragen und Preise nennen.',
+      patterns: [['koko / soko / asoko', 'hier / dort / dort drüben'], ['kochira / sochira / achira', 'höfliche Richtungs- und Ortswörter'], ['N wa doko desu ka', 'Wo ist N?'], ['doko no N', 'N aus welchem Land/von welcher Firma?'], ['ikura', 'wie viel (Preis)']],
+      drills: [
+        { prompt: 'Toire wa ___ desu ka.', answer: 'doko', options: ['doko', 'dare', 'nani', 'itsu'], explanation: 'doko fragt nach einem Ort.' },
+        { prompt: 'Koko ___ uketsuke desu.', answer: 'wa', options: ['wa', 'o', 'ni', 'de'], explanation: 'koko ist das Thema des Nominalsatzes.' },
+        { prompt: 'Kono tokei wa ___ desu ka.', answer: 'ikura', options: ['ikura', 'ikutsu', 'dore', 'donata'], explanation: 'ikura fragt nach dem Preis.' },
+        { prompt: 'O-kuni wa ___ desu ka. (höflich)', answer: 'dochira', options: ['dochira', 'kore', 'nanji', 'dare no'], explanation: 'dochira ist die höflichere Orts- oder Richtungsfrage.' }
+      ]
+    },
+    {
+      lesson: 4, title: 'Zeit & Tagesablauf', pages: '13–17',
+      summary: 'Uhrzeiten nennen, Zeitspannen mit kara/made bilden und Verben in Gegenwart und Vergangenheit verwenden.',
+      patterns: [['ima nanji desu ka', 'Wie viel Uhr ist es jetzt?'], ['N-ji N-fun', 'Stunde und Minute'], ['kara / made', 'von / bis'], ['V-masu / V-masen', 'Gegenwart positiv / negativ'], ['V-mashita / V-masen deshita', 'Vergangenheit positiv / negativ']],
+      drills: [
+        { prompt: 'Mainichi roku-ji ___ okimasu.', answer: 'ni', options: ['ni', 'de', 'o', 'wa'], explanation: 'Eine konkrete Uhrzeit wird mit ni markiert.' },
+        { prompt: 'Ginkō wa ku-ji ___ san-ji made desu.', answer: 'kara', options: ['kara', 'ni', 'to', 'e'], explanation: 'kara markiert den Beginn, made das Ende.' },
+        { prompt: 'Kinō benkyōshi___.', answer: 'mashita', options: ['mashita', 'masu', 'masen', 'desu'], explanation: 'Kinō verweist auf gestern; mashita ist die höfliche Vergangenheit.' },
+        { prompt: 'Nichiyōbi hataraki___.', answer: 'masen', options: ['masen', 'mashita', 'deshita', 'ka'], explanation: 'masen verneint ein Verb in der Gegenwart bzw. Zukunft.' }
+      ]
+    }
+  ];
+
   const materials = [
     {
       id: 'pdf-alphabet', title: 'ABC – japanische Buchstabennamen', folder: 'Kursmaterial', kind: 'alphabet', icon: 'A',
@@ -96,9 +196,27 @@
     },
     {
       id: 'pdf-question-words', title: 'Japanische Fragewörter', folder: 'Kursmaterial', kind: 'questions', icon: '問',
-      pdf: 'materials/Fragewoerter.pdf', pages: 5, count: questionWords.length,
+      pdf: 'materials/Fragewörter_Interrogate_pronouns_JP-2.pdf', pages: 5, count: questionWords.length,
       description: 'Fragewörter nach Funktion unterscheiden und direkt in Beispielsätzen anwenden.',
       searchText: questionWords.map((item) => `${item.romaji} ${item.kana} ${item.meaning} ${item.de}`).join(' ')
+    },
+    {
+      id: 'pdf-kana-lab', title: 'Kana-Labor: Hiragana & Katakana', folder: 'Kursmaterial', kind: 'kana', icon: 'あ',
+      pdf: 'materials/MNG kana tables and readings.pdf', pages: 5, count: kana.length * 2 + kanaReadings.length,
+      description: 'Hiragana und Katakana systematisch entdecken, erkennen, aktiv abrufen und in echten Wörtern lesen.',
+      sources: [
+        ['Kana-Tabelle', 'materials/MNG kana tables and readings.pdf'],
+        ['Leseübung + Lösung', 'materials/Kana_einführung_Leseübung1_mitLösung.pdf'],
+        ['Hiragana schreiben', 'materials/hiragana.exercise.pdf'],
+        ['Katakana schreiben', 'materials/katakana.exercise.pdf']
+      ],
+      searchText: `Hiragana Katakana Kana Alphabet Silbenschrift ${kana.map((item) => `${item.romaji} ${item.hiragana} ${item.katakana}`).join(' ')}`
+    },
+    {
+      id: 'pdf-minna-1-4', title: 'Minna no Nihongo · Lektionen 1–4', folder: 'Kursmaterial', kind: 'textbook', icon: 'み',
+      pdf: 'materials/MNG S1 Lehrbuch romanized L1-4_mit_Loesungen(abS18)-1.pdf', pages: 28, count: minnaLessons.reduce((sum, lesson) => sum + lesson.drills.length, 0),
+      description: 'Die ersten vier Lektionen als kompakte Grammatikpfade mit interaktiven Kapitel-Checks und Original-Lösungen.',
+      searchText: minnaLessons.map((lesson) => `${lesson.title} ${lesson.summary} ${lesson.patterns.flat().join(' ')}`).join(' ')
     },
     {
       id: 'pdf-numbers', title: 'Japanische Zahlen', folder: 'Kursmaterial', kind: 'numbers', icon: '数',
@@ -115,5 +233,5 @@
   ];
 
   window.JP_MATERIALS = materials;
-  window.JP_COURSE_CONTENT = { alphabet, questionWords, particles, adjectives, particleDrills };
+  window.JP_COURSE_CONTENT = { alphabet, questionWords, particles, adjectives, particleDrills, kana, kanaReadings, kanaRules, minnaLessons };
 })();
